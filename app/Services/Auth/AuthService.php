@@ -108,7 +108,7 @@ class AuthService
         return [
             'access_token' => JWT::encode($payload, $this->getJwtSecret(), 'HS256'),
             'token_type' => 'Bearer',
-            'expires_in' => $expiresAt->diffInSeconds($now),
+            'expires_in' => $now->diffInSeconds($expiresAt),
         ];
     }
 

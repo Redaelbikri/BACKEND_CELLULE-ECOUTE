@@ -108,9 +108,15 @@ class GoogleAuthService
 
             $payload = $response->json();
             $configuredClientId = trim((string) config('services.google.client_id', ''));
+            $configuredAndroidClientId = trim((string) config('services.google.android_client_id', ''));
             $audience = trim((string) ($payload['aud'] ?? ''));
 
-            if ($configuredClientId !== '' && $audience !== '' && $audience !== $configuredClientId) {
+            $allowedAudiences = array_values(array_filter([
+                $configuredClientId,
+                $configuredAndroidClientId,
+            ]));
+
+            if ($allowedAudiences !== [] && $audience !== '' && ! in_array($audience, $allowedAudiences, true)) {
                 throw new HttpException(422, 'Google token audience mismatch.');
             }
 

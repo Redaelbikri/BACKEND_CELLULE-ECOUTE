@@ -9,6 +9,12 @@ use App\Http\Controllers\Chat\ChatAttachmentController;
 use App\Http\Controllers\Event\EventController;
 use App\Http\Controllers\Event\EventRegistrationController;
 use App\Http\Controllers\Feedback\FeedbackController;
+use App\Http\Controllers\FollowUp\FollowUpPlanController;
+use App\Http\Controllers\FollowUp\MoodJournalController;
+use App\Http\Controllers\FollowUp\PersonalGoalController;
+use App\Http\Controllers\Resource\EducationalResourceController;
+use App\Http\Controllers\Resource\RecommendedResourceController;
+use App\Http\Controllers\Resource\SavedResourceController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -50,6 +56,14 @@ Route::middleware('jwt')->group(function () {
         Route::get('/events/{id}/registrations', [EventRegistrationController::class, 'adminRegistrations']);
 
         Route::get('/emotion-analyses', [EmotionAnalysisController::class, 'adminIndex']);
+
+        Route::get('/resources', [EducationalResourceController::class, 'adminIndex']);
+        Route::post('/resources', [EducationalResourceController::class, 'store']);
+        Route::get('/resources/{id}', [EducationalResourceController::class, 'show']);
+        Route::put('/resources/{id}', [EducationalResourceController::class, 'update']);
+        Route::delete('/resources/{id}', [EducationalResourceController::class, 'destroy']);
+        Route::patch('/resources/{id}/publish', [EducationalResourceController::class, 'publish']);
+        Route::patch('/resources/{id}/unpublish', [EducationalResourceController::class, 'unpublish']);
     });
 
     Route::prefix('student')->middleware('role:student')->group(function () {
@@ -57,6 +71,26 @@ Route::middleware('jwt')->group(function () {
         Route::post('/events/{id}/register', [EventRegistrationController::class, 'register']);
         Route::patch('/events/{id}/cancel-registration', [EventRegistrationController::class, 'cancelRegistration']);
         Route::get('/my-events', [EventController::class, 'studentMyEvents']);
+
+        Route::get('/resources', [EducationalResourceController::class, 'studentIndex']);
+        Route::get('/resources/{id}', [EducationalResourceController::class, 'show']);
+        Route::post('/resources/{id}/save', [SavedResourceController::class, 'save']);
+        Route::delete('/resources/{id}/unsave', [SavedResourceController::class, 'unsave']);
+        Route::get('/saved-resources', [SavedResourceController::class, 'index']);
+        Route::get('/recommended-resources', [RecommendedResourceController::class, 'studentIndex']);
+
+        Route::get('/mood-journal', [MoodJournalController::class, 'studentIndex']);
+        Route::post('/mood-journal', [MoodJournalController::class, 'store']);
+        Route::put('/mood-journal/{id}', [MoodJournalController::class, 'update']);
+
+        Route::get('/goals', [PersonalGoalController::class, 'studentIndex']);
+        Route::post('/goals', [PersonalGoalController::class, 'store']);
+        Route::get('/goals/{id}', [PersonalGoalController::class, 'show']);
+        Route::put('/goals/{id}', [PersonalGoalController::class, 'update']);
+        Route::delete('/goals/{id}', [PersonalGoalController::class, 'destroy']);
+        Route::patch('/goals/{id}/status', [PersonalGoalController::class, 'updateStatus']);
+
+        Route::get('/follow-up-plans', [FollowUpPlanController::class, 'studentIndex']);
     });
 
     Route::prefix('counselor')->middleware('role:counselor')->group(function () {
@@ -64,6 +98,18 @@ Route::middleware('jwt')->group(function () {
         Route::get('/events/{id}/registrations', [EventRegistrationController::class, 'counselorRegistrations']);
         Route::get('/students/{studentId}/emotion-analyses', [EmotionAnalysisController::class, 'counselorStudentAnalyses']);
         Route::get('/emotion-alerts', [EmotionAnalysisController::class, 'counselorAlerts']);
+
+        Route::get('/resources', [EducationalResourceController::class, 'counselorIndex']);
+        Route::get('/resources/{id}', [EducationalResourceController::class, 'show']);
+        Route::post('/students/{studentId}/recommend-resource', [RecommendedResourceController::class, 'recommend']);
+        Route::get('/students/{studentId}/recommended-resources', [RecommendedResourceController::class, 'counselorStudentIndex']);
+        Route::get('/students/{studentId}/mood-journal', [MoodJournalController::class, 'counselorStudentIndex']);
+        Route::get('/students/{studentId}/goals', [PersonalGoalController::class, 'counselorStudentIndex']);
+        Route::post('/students/{studentId}/suggest-goal', [PersonalGoalController::class, 'suggest']);
+        Route::get('/students/{studentId}/follow-up-plans', [FollowUpPlanController::class, 'counselorStudentIndex']);
+        Route::post('/students/{studentId}/follow-up-plans', [FollowUpPlanController::class, 'store']);
+        Route::put('/students/{studentId}/follow-up-plans/{id}', [FollowUpPlanController::class, 'update']);
+        Route::patch('/students/{studentId}/follow-up-plans/{id}/complete', [FollowUpPlanController::class, 'complete']);
     });
 
     Route::get('/appointments', [AppointmentController::class, 'index']);
